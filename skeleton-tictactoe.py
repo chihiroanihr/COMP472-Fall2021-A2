@@ -1,5 +1,10 @@
 # based on code from https://stackabuse.com/minimax-and-alpha-beta-pruning-in-python
 
+
+# We'll use the time module to measure the time of evaluating
+# game tree in every move. It's a nice way to show the
+# distinction between the basic Minimax and Minimax with
+# alpha-beta pruning :)
 import time
 
 class Game:
@@ -26,7 +31,8 @@ class Game:
 				print(F'{self.current_state[x][y]}', end="")
 			print()
 		print()
-		
+	
+	# Determines if the made move is a legal move
 	def is_valid(self, px, py):
 		if px < 0 or px > 2 or py < 0 or py > 2:
 			return False
@@ -35,6 +41,7 @@ class Game:
 		else:
 			return True
 
+	# Checks if the game has ended and returns the winner in each case
 	def is_end(self):
 		# Vertical win
 		for i in range(0, 3):
@@ -99,16 +106,20 @@ class Game:
 
 	def minimax(self, max=False):
 		# Minimizing for 'X' and maximizing for 'O'
+
 		# Possible values are:
 		# -1 - win for 'X'
 		# 0  - a tie
 		# 1  - loss for 'X'
+
 		# We're initially setting it to 2 or -2 as worse than the worst case:
 		value = 2
 		if max:
 			value = -2
+
 		x = None
 		y = None
+		
 		result = self.is_end()
 		if result == 'X':
 			return (-1, x, y)
@@ -116,12 +127,16 @@ class Game:
 			return (1, x, y)
 		elif result == '.':
 			return (0, x, y)
+
 		for i in range(0, 3):
 			for j in range(0, 3):
 				if self.current_state[i][j] == '.':
 					if max:
 						self.current_state[i][j] = 'O'
+						# On the empty field player 'O' makes a move and calls Min
+                		# That's one branch of the game tree.
 						(v, _, _) = self.minimax(max=False)
+						# Fixing the maxv value if needed
 						if v > value:
 							value = v
 							x = i
@@ -133,6 +148,7 @@ class Game:
 							value = v
 							x = i
 							y = j
+					# Setting back the field to empty
 					self.current_state[i][j] = '.'
 		return (value, x, y)
 
@@ -146,8 +162,10 @@ class Game:
 		value = 2
 		if max:
 			value = -2
+
 		x = None
 		y = None
+
 		result = self.is_end()
 		if result == 'X':
 			return (-1, x, y)
@@ -155,6 +173,7 @@ class Game:
 			return (1, x, y)
 		elif result == '.':
 			return (0, x, y)
+
 		for i in range(0, 3):
 			for j in range(0, 3):
 				if self.current_state[i][j] == '.':
@@ -172,7 +191,9 @@ class Game:
 							value = v
 							x = i
 							y = j
+					# Setting back the field to empty
 					self.current_state[i][j] = '.'
+
 					if max: 
 						if value >= beta:
 							return (value, x, y)
@@ -185,6 +206,7 @@ class Game:
 							beta = value
 		return (value, x, y)
 
+	# let's make a game loop that allows us to play against the AI!
 	def play(self,algo=None,player_x=None,player_o=None):
 		if algo == None:
 			algo = self.ALPHABETA
@@ -192,11 +214,14 @@ class Game:
 			player_x = self.HUMAN
 		if player_o == None:
 			player_o = self.HUMAN
+
 		while True:
 			self.draw_board()
 			if self.check_end():
+
 				return
 			start = time.time()
+
 			if algo == self.MINIMAX:
 				if self.player_turn == 'X':
 					(_, x, y) = self.minimax(max=False)
@@ -207,7 +232,9 @@ class Game:
 					(m, x, y) = self.alphabeta(max=False)
 				else:
 					(m, x, y) = self.alphabeta(max=True)
+
 			end = time.time()
+			
 			if (self.player_turn == 'X' and player_x == self.HUMAN) or (self.player_turn == 'O' and player_o == self.HUMAN):
 					if self.recommend:
 						print(F'Evaluation time: {round(end - start, 7)}s')
