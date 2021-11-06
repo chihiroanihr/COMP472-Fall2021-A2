@@ -19,7 +19,12 @@ class Game:
         self.size_lineup = size_lineup
         self.recommend = recommend
     
-    def initialize_game(self):
+    def print_horizontal_category():
+        print("")
+    def print_vertical_category(board_size):
+        print("")
+        
+    def initialize_game(self, size_board, position_blocks):
         self.current_state = [['.','.','.'],
 							  ['.','.','.'],
 							  ['.','.','.']]

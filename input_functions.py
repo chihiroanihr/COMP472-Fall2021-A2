@@ -16,7 +16,7 @@ def input_get_size_board():
 def input_get_number_blocks(size_board):
     while True:
         try:
-            number_blocks = int(input('Enter the number of blocks (range of input: 0 ~ 2*(size of board)): '))
+            number_blocks = int(input('Enter the number of blocks (range of input: 0 ~ ' + str(2*(size_board)) + '): '))
         except ValueError:
             print("!!! You must enter integer value, try again !!!")
             continue
@@ -29,12 +29,13 @@ def generate_custom_coordinates(number_blocks, size_board, position_blocks):
     i = 1
     while (i <= number_blocks):
         try: 
-            cord = input('Enter ' + i+1 + 'th block\'s coordinate separated by comma (ex: 1, 3): ')
+            cord = input('Enter ' + str(i) + 'th block\'s coordinate separated by comma (ex: 1, 3)'
+            + '\n(The size of board is ' + str(size_board) + ', thus the input should be <= ' + str(size_board) + '): ')
             cord = tuple(map(int, cord.split(', ')))
         except ValueError:
             print("!!! You must enter integer value, try again !!!")
             continue
-        if any(m is None for m in max_depth) or all(c > size_board-1 for c in cord):
+        if any(c is None for c in cord) or all(c > size_board-1 for c in cord):
             print("!!! Invalid value, try again !!!")
             continue
         else:
@@ -73,7 +74,7 @@ def input_get_position_blocks(number_blocks, size_board):
 def input_get_size_lineup(size_board):
     while True:
         try:
-            size_lineup = int(input('Enter the winning line up size (range of input: 3 ~ size of board): '))
+            size_lineup = int(input('Enter the winning line up size (range of input: 3 ~ ' + str(size_board) + '): '))
         except ValueError:
             print("!!! You must enter integer value, try again !!!")
             continue
