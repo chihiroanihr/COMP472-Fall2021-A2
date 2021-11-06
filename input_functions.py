@@ -35,7 +35,7 @@ def generate_custom_coordinates(number_blocks, size_board, position_blocks):
         except ValueError:
             print("!!! You must enter integer value, try again !!!")
             continue
-        if any(c is None for c in cord) or all(c > size_board-1 for c in cord):
+        if any(c is None for c in cord) or all(c > size_board-1 for c in cord) or len(cord) == 1:
             print("!!! Invalid value, try again !!!")
             continue
         else:
@@ -51,19 +51,19 @@ def input_get_position_blocks(number_blocks, size_board):
     while True:
         try:
             choice = int(input('Enter the position of the blocks: '
-            + '\n\t(1) Manually enter the block positions in coordinates (ex: (3, 2), (2, 1))'
-            + '\n\t(2) Randomly Generate the block positions'
+            + '\n\t(1) Randomly Generate the block positions'
+            + '\n\t(2) Manually enter the block positions in coordinates (ex: (3, 2), (2, 1))'
             + '\n(Enter 1 or 2): '))
         except ValueError:
             print("!!! You must enter integer value, try again !!!")
             continue
         position_blocks = set() # generate random UNIQUE blocks (to avoid duplicate coordinates)
-        if choice == 2: # if generate random
+        if choice == 1: # if generate random
             while len(position_blocks) < number_blocks:
                 x, y = randint(0, size_board-1), randint(0, size_board-1)
                 position_blocks.add((x, y))
             break
-        elif choice == 1:
+        elif choice == 2:
             position_blocks = generate_custom_coordinates(number_blocks, size_board, position_blocks)
             break
         else:
@@ -91,7 +91,7 @@ def input_get_max_depth():
         except ValueError:
             print("!!! You must enter integer value, try again !!!")
             continue
-        if any(m is None for m in max_depth):
+        if any(m is None for m in max_depth) or len(max_depth) == 1:
             print("!!! Invalid value, try again !!!")
             continue
         return max_depth
@@ -106,18 +106,25 @@ def input_get_max_time():
         return max_time
 
 def input_get_adversarial_type():
+    MINIMAX = 0
+    ALPHABETA = 1
     while True:
         try:
             choice = int(input('Adversarial type: \n\t(1) minmax\n\t(2) alphabeta\n(Enter 1 or 2): '))
         except ValueError:
             print("!!! You must enter integer value, try again !!!")
             continue
-        if choice!=1 and choice!=2:
+        if choice == 1:
+            return MINIMAX
+        elif choice == 2:
+            return ALPHABETA
+        else:
             print("!!! Invalid choice, try again !!!")
             continue
-        return choice
 
 def input_get_play_mode():
+    HUMAN = 2
+    AI = 3
     while True:
         try:
             choice = int(input('Playmode: '
@@ -129,7 +136,14 @@ def input_get_play_mode():
         except ValueError:
             print("!!! You must enter integer value, try again !!!")
             continue
-        if choice!=1 and choice!=2 and choice!=3 and choice!=4:
+        if choice == 1:
+            return HUMAN, HUMAN
+        elif choice == 2:
+            return HUMAN, AI
+        elif choice == 3:
+            return AI, HUMAN
+        elif choice == 4:
+            return AI, AI
+        else:
             print("!!! Invalid choice, try again !!!")
             continue
-        return choice

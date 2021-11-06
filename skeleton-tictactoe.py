@@ -218,8 +218,8 @@ class Game:
 		while True:
 			self.draw_board()
 			if self.check_end():
-
 				return
+				
 			start = time.time()
 
 			if algo == self.MINIMAX:
