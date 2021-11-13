@@ -35,7 +35,7 @@ def generate_custom_coordinates(number_blocks, size_board, position_blocks):
         except ValueError:
             print("!!! You must enter integer value, try again !!!")
             continue
-        if any(c is None for c in cord) or all(c > size_board-1 for c in cord) or len(cord) == 1:
+        if any(c is None for c in cord) or any(c > size_board-1 for c in cord) or len(cord) == 1:
             print("!!! Invalid value, try again !!!")
             continue
         else:
