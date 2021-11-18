@@ -94,7 +94,7 @@ def input_get_max_depth():
         if any(m is None for m in max_depth) or len(max_depth) == 1:
             print("!!! Invalid value, try again !!!")
             continue
-        return max_depth
+        return max_depth[0], max_depth[1]
 
 def input_get_max_time():
     while True:
@@ -105,33 +105,16 @@ def input_get_max_time():
             continue
         return max_time
 
-def input_get_adversarial_type():
-    MINIMAX = 0
-    ALPHABETA = 1
-    while True:
-        try:
-            choice = int(input('Adversarial type: \n\t(1) minmax\n\t(2) alphabeta\n(Enter 1 or 2): '))
-        except ValueError:
-            print("!!! You must enter integer value, try again !!!")
-            continue
-        if choice == 1:
-            return MINIMAX
-        elif choice == 2:
-            return ALPHABETA
-        else:
-            print("!!! Invalid choice, try again !!!")
-            continue
-
 def input_get_play_mode():
     HUMAN = 2
     AI = 3
     while True:
         try:
             choice = int(input('Playmode: '
-        + '\n\t(1) [Player 1] Human  VS   [Player 2] Human'
-        + '\n\t(2) [Player 1] Human  VS   [Player 2] AI'
-        + '\n\t(3) [Player 1] AI     VS   [Playe 2] Human'
-        + '\n\t(4) [Player 1] AI     VS   [Playe 2] AI'
+        + '\n\t(1) [Player X] Human  VS   [Player O] Human'
+        + '\n\t(2) [Player X] Human  VS   [Player O] AI'
+        + '\n\t(3) [Player X] AI     VS   [Playe O] Human'
+        + '\n\t(4) [Player X] AI     VS   [Playe O] AI'
         + '\n(Enter 1, 2, 3, or 4): '))
         except ValueError:
             print("!!! You must enter integer value, try again !!!")
@@ -144,6 +127,50 @@ def input_get_play_mode():
             return AI, HUMAN
         elif choice == 4:
             return AI, AI
+        else:
+            print("!!! Invalid choice, try again !!!")
+            continue
+
+def input_get_adversarial_type():
+    MINIMAX = 0
+    ALPHABETA = 1
+    while True:
+        try:
+            print("Adversarial type available:\n\t(1) Minmax\n\t(2) Alphabeta")
+            choice1 = int(input("Choose adversarial type of Player X to use (Enter 1 or 2): "))
+            choice2 = int(input("Choose adversarial type of Player O to use (Enter 1 or 2): "))
+        except ValueError:
+            print("!!! You must enter integer value, try again !!!")
+            continue
+        if choice1 == 1 and choice2 == 1:
+            return (MINIMAX, MINIMAX)
+        elif choice1 == 1 and choice2 == 2:
+            return (MINIMAX, ALPHABETA)
+        elif choice1 == 2 and choice2 == 1:
+            return (ALPHABETA, MINIMAX)
+        elif choice1 == 2 and choice2 == 2:
+            return (ALPHABETA, ALPHABETA)
+        else:
+            print("!!! Invalid choice, try again !!!")
+            continue
+
+def input_get_heuristic_func():
+    while True:
+        try:
+            print("Heuristic functions available:\n\tE1: simple yet less accurate function\n\tE2: complex and time consuming yet more precise function")
+            choice1 = int(input("Choose heuristic function of Player X to use (Enter 1 or 2): "))
+            choice2 = int(input("Choose heuristic function of Player O to use (Enter 1 or 2): "))
+        except ValueError:
+            print("!!! You must enter integer value, try again !!!")
+            continue
+        if choice1 == 1 and choice2 == 1:
+            return (1, 1)
+        elif choice1 == 1 and choice2 == 2:
+            return (1, 2)
+        elif choice1 == 2 and choice2 == 1:
+            return (2, 1)
+        elif choice1 == 2 and choice2 == 2:
+            return (2, 2)
         else:
             print("!!! Invalid choice, try again !!!")
             continue

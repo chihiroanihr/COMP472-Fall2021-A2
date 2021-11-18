@@ -1,0 +1,51 @@
+[The parameters of the game]
+(n: size of board, b: number of blocks, s: size of winning lineup, t: maximum time allowed):
+	n = 5
+	b = 2
+	s = 3
+	t = 5
+
+[Position of the blocks]
+	(2, 3)
+	(0, 2)
+
+[Parameters of each player]
+	Player X: HUMAN
+	Player O: AI
+
+Player O is AI:
+	Euristic used - e2 (complex function)
+	Adversarial type used - Alphabeta
+
+
+Initial configuration of the board:
+  ABCDE
+ +-----
+0|..*..
+1|.....
+2|...*.
+3|.....
+4|.....
+
+Evaluation time: 5.0082672s
+Recommended move: x = A, y = 1
+Player X under HUMAN control plays: A1
+
+  ABCDE  (move #1)
+ +-----
+0|..*..
+1|X....
+2|...*.
+3|.....
+4|.....
+
+Player O under AI control plays: A0
+Evaluation time: 0.1176312s
+  ABCDE  (move #2)
+ +-----
+0|O.*..
+1|X....
+2|...*.
+3|.....
+4|.....
+
