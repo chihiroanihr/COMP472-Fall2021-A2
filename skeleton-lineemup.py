@@ -6,7 +6,6 @@ import time
 from input_functions import *
 
 class Game:
-
     # Constants
     MINIMAX = 0
     ALPHABETA = 1
@@ -23,6 +22,10 @@ class Game:
         self.max_depth_O = max_depth_O
         self.max_time = max_time
         self.initialize_game()
+        self.average_recursion_depth = 0
+        self.total_e_times = []
+        self.num_states_evaluation_by_depth = [0]*(self.max_depth_X+1) if self.max_depth_X > self.max_depth_O else [0]*(self.max_depth_O+1)
+        self.average_evaluation_depth = 0
         
     def initialize_game(self):
         # initialize current state matrix with '.' 
@@ -201,6 +204,7 @@ class Game:
             elif self.result == '.':
                 print("It's a tie!")
             self.initialize_game()
+            self.write_game_finish_status_to_file()
         return self.result
 
     def input_move(self):
@@ -228,6 +232,7 @@ class Game:
         elif self.player_turn == 'O':
             self.player_turn = 'X'
         return self.player_turn
+
 
     def e1(self):
         num_X, num_O = 0, 0
@@ -474,6 +479,7 @@ class Game:
                 if self.current_state[i][j] == '.':
                     if max:
                         self.current_state[i][j] = 'O'
+                        self.num_states_evaluation_by_depth[depth] += 1
                         # On the empty field player 'O' makes a move and calls Min
                         # That's one branch of the game tree.
                         (v, _, _) = self.minimax(depth+1, max=False)
@@ -484,6 +490,7 @@ class Game:
                             y = j
                     else:
                         self.current_state[i][j] = 'X'
+                        self.num_states_evaluation_by_depth[depth] += 1
                         (v, _, _) = self.minimax(depth+1, max=True)
                         if v < value:
                             value = v
@@ -530,6 +537,7 @@ class Game:
                 if self.current_state[i][j] == '.':
                     if max:
                         self.current_state[i][j] = 'O'
+                        self.num_states_evaluation_by_depth[depth] += 1
                         (v, _, _) = self.alphabeta(depth+1, alpha, beta, max=False)
                         if v > value:
                             value = v
@@ -537,6 +545,7 @@ class Game:
                             y = j
                     else:
                         self.current_state[i][j] = 'X'
+                        self.num_states_evaluation_by_depth[depth] += 1
                         (v, _, _) = self.alphabeta(depth+1, alpha, beta, max=True)
                         if v < value:
                             value = v
@@ -577,8 +586,13 @@ class Game:
             self.draw_board(count_move)
             count_move += 1
             if self.check_end():
+                self.write_game_finish_status_to_file()
                 return
 
+            self.num_states_evaluation = 0
+            for i in range(len(self.num_states_evaluation_by_depth)):
+                self.num_states_evaluation_by_depth[i] = 0
+            
             start = time.time()
             self.start = start
 
@@ -600,24 +614,69 @@ class Game:
             with open(self.filename, "a") as f:
                 if (self.player_turn == 'X' and self.player_x == self.HUMAN) or (self.player_turn == 'O' and self.player_o == self.HUMAN):
                     if self.recommend:
-                        print(F'Evaluation time: {round(end - start, 7)}s')
                         print(F'Recommended move: x = {x_letter_axis[x]}, y = {y}')
-                        f.write(F'Evaluation time: {round(end - start, 7)}s\n')
                         f.write(F'Recommended move: x = {x_letter_axis[x]}, y = {y}\n')
+                        print(F'i\tEvaluation time: {round(end - start, 7)}s')
+                        self.total_e_times.append(round(end - start, 7))
+                        print(F'ii\tHeuristic evaluations: {self.num_states_evaluation}')
+                        f.write(F'i\tEvaluation time: {round(end - start, 7)}s\n')
+                        f.write(F'ii\tHeuristic evaluations: {self.num_states_evaluation}\n')
+
+                        print(F'iii\tEvaluations by depth: {{', end="")
+                        f.write(F'iii\tEvaluations by depth: {{')
+                        total_evaluation_depth = 0
+                        for i in range(len(self.num_states_evaluation_by_depth)):
+                            total_evaluation_depth += i * self.num_states_evaluation_by_depth[i]
+                            if self.num_states_evaluation_by_depth[i] != 0:
+                                print(F"{i}: {self.num_states_evaluation_by_depth[i]}", end="")
+                                f.write(F"{i}: {self.num_states_evaluation_by_depth[i]}")
+                        print("}")
+                        f.write("}\n")
+
+                        self.average_evaluation_depth = total_evaluation_depth / (self.num_states_evaluation if self.num_states_evaluation != 0 else 1)
+                        print(F'iv\tAverage evaluation depth: {self.average_evaluation_depth}')
+                        print(F'v\tAverage recursion depth: ')
+                        f.write(F'iv\tAverage evaluation depth: {self.average_evaluation_depth}\n')
+                        f.write(F'v\tAverage recursion depth: \n')
                     print()
+
                     (x,y) = self.input_move()
                     print(F'Player {self.player_turn} under HUMAN control plays: {x_letter_axis[x]}{y}')
                     f.write(F'Player {self.player_turn} under HUMAN control plays: {x_letter_axis[x]}{y}\n')
                     print()
+
                 if (self.player_turn == 'X' and self.player_x == self.AI) or (self.player_turn == 'O' and self.player_o == self.AI):
                     print(F'Player {self.player_turn} under AI control plays: {x_letter_axis[x]}{y}')
-                    print(F'Evaluation time: {round(end - start, 7)}s')
-                    print()
                     f.write(F'Player {self.player_turn} under AI control plays: {x_letter_axis[x]}{y}\n')
-                    f.write(F'Evaluation time: {round(end - start, 7)}s')
+
+                    print(F'i\tEvaluation time: {round(end - start, 7)}s')
+                    self.total_e_times.append(round(end - start, 7))
+                    print(F'ii\tHeuristic evaluations: {self.num_states_evaluation}')
+                    f.write(F'i\tEvaluation time: {round(end - start, 7)}s')
+                    f.write(F'ii\tHeuristic evaluations: {self.num_states_evaluation}\n')
+
+                    print(F'iii\tEvaluations by depth: {{', end="")
+                    f.write(F'iii\tEvaluations by depth: {{')
+                    total_evaluation_depth = 0
+                    for i in range(len(self.num_states_evaluation_by_depth)):
+                        total_evaluation_depth += i * self.num_states_evaluation_by_depth[i]
+                        if self.num_states_evaluation_by_depth[i] != 0:
+                            print(F"{i}: {self.num_states_evaluation_by_depth[i]}", end="")
+                            f.write(F"{i}: {self.num_states_evaluation_by_depth[i]}")
+                    print("}")
+                    f.write("}\n")
+
+                    self.average_evaluation_depth = total_evaluation_depth / (self.num_states_evaluation if self.num_states_evaluation != 0 else 1)
+                    print(F'iv\tAverage evaluation depth: {self.average_evaluation_depth}')
+                    print(F'v\tAverage recursion depth: ')
+                    f.write(F'iv\tAverage evaluation depth: {self.average_evaluation_depth}\n')
+                    f.write(F'v\tAverage recursion depth: \n')
+                    print()
+
             self.current_state[x][y] = self.player_turn
             self.switch_player()
             print()
+
 
     def write_initial_config_to_file(self):
         self.filename = "gameTrace-" + str(self.size_board) + str(self.number_blocks) + str(self.size_lineup) + str(self.max_time) + ".txt"
@@ -675,6 +734,38 @@ class Game:
                     f.write("\n\tEuristic func = e2(defensive)")
             f.write("\n\n")
 
+    def write_game_finish_status_to_file(self):
+        with open(self.filename, 'a') as f:
+            if self.result != None:
+                if self.result == 'X':
+                    f.write('The winner is x!')
+                elif self.result == '0':
+                    f.write('The winner is 0!')
+                elif self.result == '.':
+                    f.write("It's a tie!")
+
+            # 6(b)i average evaluation time
+            average_e_time = sum(self.total_e_times) / len(self.total_e_times)
+            f.write("\n6(b)i   Average evaluation time: " + str(average_e_time))
+
+            # (b)ii Total heuristic evaluations:
+            f.write("\n6(b)ii  Total heuristic evaluations: " + str(self.num_states_evaluation))
+
+            # (b)iii Evaluations by depth:
+            f.write("\n6(b)iii Evaluations by depth: ")
+            for i in range(len(self.num_states_evaluation_by_depth)):
+                if self.num_states_evaluation_by_depth[i] != 0:
+                    f.write(str(i)+": "+str(self.num_states_evaluation_by_depth[i])+"")
+
+            # 6(b)iv  Average evaluation depth
+            f.write("\n6(b)iv  Average evaluation depth: " + str(self.average_evaluation_depth))
+
+            # 6(b)v   Average recursion depth
+            f.write("\n6(b)v   Average recursion depth: " + str(self.average_recursion_depth))
+
+            # 6(b)vi  Total moves: 7
+            f.write("\n6(b)vi  Total moves: ")
+
 
 def main():
     '''
@@ -705,7 +796,6 @@ def main():
     print("\n\n\n --------------\n[ Game Started ]\n --------------\n")
     g = Game(size_board, number_blocks, position_blocks, size_lineup, max_depth_X, max_depth_O, max_time, recommend=True)
     g.play(algo_X=adversarial_type_X, algo_O=adversarial_type_O, e_func_X=heuristic_func_X, e_func_O=heuristic_func_O, player_x=play_mode1, player_o=play_mode2)
-    #g.play(algo_X=adversarial_type[0], algo_O=adversarial_type[1], e_func_X=heuristic_func_X, e_func_O=heuristic_func_O, player_x=play_mode1, player_o=play_mode2)
 
 if __name__ == "__main__":
 	main()
