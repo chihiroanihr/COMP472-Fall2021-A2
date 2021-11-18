@@ -1,0 +1,75 @@
+[The parameters of the game]
+(n: size of board, b: number of blocks, s: size of winning lineup, t: maximum time allowed):
+	n = 4
+	b = 4
+	s = 3
+	t = 5
+
+[Position of the blocks]
+	(3, 3)
+	(0, 3)
+	(3, 0)
+	(0, 0)
+
+[Parameters of each player]
+	Player X: AI
+	Player O: AI
+
+Player X: AI
+	Maximum depth = 6
+	Adversarial type = Minmax
+	Euristic func = e2(complex function)
+
+Player O: AI
+	Maximum depth = 6
+	Adversarial type = Minmax
+	Euristic func = e1(regular)
+
+
+Initial configuration of the board:
+  ABCD
+ +----
+0|*..*
+1|....
+2|....
+3|*..*
+
+Player X under AI control plays: A2
+i	Evaluation time: 5.0018921sii	Heuristic evaluations: 0
+iii	Evaluations by depth: {0: 121: 112: 903: 7744: 61605: 41573}
+iv	Average evaluation depth: 235018.0
+v	Average recursion depth: 
+
+  ABCD  (move #1)
+ +----
+0|*..*
+1|....
+2|X...
+3|*..*
+
+Player O under AI control plays: B1
+i	Evaluation time: 5.0012782sii	Heuristic evaluations: 0
+iii	Evaluations by depth: {0: 111: 202: 1623: 12484: 82745: 47388}
+iv	Average evaluation depth: 274124.0
+v	Average recursion depth: 
+
+  ABCD  (move #2)
+ +----
+0|*..*
+1|.O..
+2|X...
+3|*..*
+
+Player X under AI control plays: C0
+i	Evaluation time: 5.001323sii	Heuristic evaluations: 0
+iii	Evaluations by depth: {0: 101: 362: 2643: 17644: 96905: 44420}
+iv	Average evaluation depth: 266716.0
+v	Average recursion depth: 
+
+  ABCD  (move #3)
+ +----
+0|*.X*
+1|.O..
+2|X...
+3|*..*
+

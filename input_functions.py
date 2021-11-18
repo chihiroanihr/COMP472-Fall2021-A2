@@ -47,6 +47,13 @@ def generate_custom_coordinates(number_blocks, size_board, position_blocks):
             else:
                 i += 1
     return position_blocks
+def random_position_blocks(number_blocks, size_board):
+    # generate random UNIQUE blocks (to avoid duplicate coordinates)
+    position_blocks = set()
+    while len(position_blocks) < number_blocks:
+        x, y = randint(0, size_board-1), randint(0, size_board-1)
+        position_blocks.add((x, y))
+    return position_blocks
 def input_get_position_blocks(number_blocks, size_board):
     while True:
         try:
@@ -57,12 +64,8 @@ def input_get_position_blocks(number_blocks, size_board):
         except ValueError:
             print("!!! You must enter integer value, try again !!!")
             continue
-        position_blocks = set() # generate random UNIQUE blocks (to avoid duplicate coordinates)
         if choice == 1: # if generate random
-            while len(position_blocks) < number_blocks:
-                x, y = randint(0, size_board-1), randint(0, size_board-1)
-                position_blocks.add((x, y))
-            break
+            position_blocks = random_position_blocks(number_blocks, size_board)
         elif choice == 2:
             position_blocks = generate_custom_coordinates(number_blocks, size_board, position_blocks)
             break

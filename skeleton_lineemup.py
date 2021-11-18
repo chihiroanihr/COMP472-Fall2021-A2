@@ -524,9 +524,15 @@ class Game:
 
         # if max depth reached: return estimate(gamestate)
         if self.player_turn == 'X' and depth >= self.max_depth_X:
-            return (self.e2(), x, y)
+            if self.e_func_X == 1:
+                return (self.e1(), x, y)
+            else:
+                return (self.e2(), x, y)
         elif self.player_turn == 'O' and depth >= self.max_depth_O:
-            return (self.e1(), x, y)
+            if self.e_func_O == 1:
+                return (self.e1(), x, y)
+            else:
+                return (self.e2(), x, y)
         
         # if time is up: return estimate(gamestate)
         if (round(time.time() - self.start, 7) >= self.max_time):
@@ -586,8 +592,9 @@ class Game:
             self.draw_board(count_move)
             count_move += 1
             if self.check_end():
-                self.write_game_finish_status_to_file()
-                return
+                result = self.check_end()
+                average_e_time, final_evaluation_by_depth = self.write_game_finish_status_to_file()
+                return self.size_board, self.number_blocks, self.size_lineup, self.max_depth_X, self.max_depth_O, self.max_time, self.algo_X, self.algo_O, result, self.e_func_X, self.e_func_O, average_e_time, self.num_states_evaluation, final_evaluation_by_depth, self.average_evaluation_depth, self.average_recursion_depth
 
             self.num_states_evaluation = 0
             for i in range(len(self.num_states_evaluation_by_depth)):
@@ -709,7 +716,7 @@ class Game:
                 f.write("AI")
 
             if self.player_x == 3:
-                f.write("\n\nPlayer X:")
+                f.write("\n\nPlayer X: ")
                 f.write("AI")
                 f.write("\n\tMaximum depth = " + str(self.max_depth_X))
                 if (self.algo_X == 0):
@@ -717,11 +724,11 @@ class Game:
                 else:
                     f.write("\n\tAdversarial type = Alphabeta")
                 if (self.e_func_X == 1):
-                        f.write("\n\tEuristic func = e1 (simple function)")
+                        f.write("\n\tEuristic func = e1(simple function)")
                 else:
-                    f.write("\n\tEuristic func = e2 (complex function)")
+                    f.write("\n\tEuristic func = e2(complex function)")
             if self.player_o == 3:
-                f.write("\n\nPlayer O")
+                f.write("\n\nPlayer O: ")
                 f.write("AI")
                 f.write("\n\tMaximum depth = " + str(self.max_depth_O))
                 if (self.algo_O == 0):
@@ -752,10 +759,13 @@ class Game:
             f.write("\n6(b)ii  Total heuristic evaluations: " + str(self.num_states_evaluation))
 
             # (b)iii Evaluations by depth:
-            f.write("\n6(b)iii Evaluations by depth: ")
+            f.write("\n6(b)iii Evaluations by depth: {")
+            final_evaluation_by_depth = dict()
             for i in range(len(self.num_states_evaluation_by_depth)):
                 if self.num_states_evaluation_by_depth[i] != 0:
+                    final_evaluation_by_depth[i] = self.num_states_evaluation_by_depth[i]
                     f.write(str(i)+": "+str(self.num_states_evaluation_by_depth[i])+"")
+            f.write("}")
 
             # 6(b)iv  Average evaluation depth
             f.write("\n6(b)iv  Average evaluation depth: " + str(self.average_evaluation_depth))
@@ -765,6 +775,7 @@ class Game:
 
             # 6(b)vi  Total moves: 7
             f.write("\n6(b)vi  Total moves: ")
+            return average_e_time, final_evaluation_by_depth
 
 
 def main():
@@ -778,24 +789,79 @@ def main():
     # settings/parameters when game starts/play
     max_depth1, max_depth2 = input_get_max_depth()
     max_time = input_get_max_time()
-    '''
-
-    size_board = 5
-    number_blocks = 2
-    position_blocks = set(((2, 3), (0, 2)))
-    size_lineup = 3
-
-    max_depth_X = 5
-    max_depth_O = 3
-    max_time = 5
 
     play_mode1, play_mode2 = input_get_play_mode()
     adversarial_type_X, adversarial_type_O = input_get_adversarial_type()
     heuristic_func_X, heuristic_func_O = input_get_heuristic_func()
+    '''
 
     print("\n\n\n --------------\n[ Game Started ]\n --------------\n")
-    g = Game(size_board, number_blocks, position_blocks, size_lineup, max_depth_X, max_depth_O, max_time, recommend=True)
-    g.play(algo_X=adversarial_type_X, algo_O=adversarial_type_O, e_func_X=heuristic_func_X, e_func_O=heuristic_func_O, player_x=play_mode1, player_o=play_mode2)
+    total_games=[]
+    total_average_evaluation_time = []
+    total_num_states_evaluation = []
+    total_average_evaluation_depth = []
+    #g = Game(size_board, number_blocks, position_blocks, size_lineup, max_depth_X, max_depth_O, max_time, recommend=True)
+
+    g1 = Game(4, 4, set(((0,0), (0,3), (3,0), (3,3))), 3, 6, 6, 5, recommend=True)
+    g1.play(algo_X=0, algo_O=0, e_func_X=2, e_func_O=1, player_x=3, player_o=3)
+    total_games.append(g1)
+    
+    g2 = Game(4, 4, set(((0,0), (0,3), (3,0), (3,3))), 3, 6, 6, 1, recommend=True)
+    g2.play(algo_X=1, algo_O=1, e_func_X=2, e_func_O=1, player_x=3, player_o=3)
+    total_games.append(g2)
+
+    g3 = Game(5, 4, random_position_blocks(4, 5), 4, 2, 6, 1, recommend=True)
+    g3.play(algo_X=1, algo_O=1, e_func_X=2, e_func_O=1, player_x=3, player_o=3)
+    total_games.append(g3)
+
+    g4 = Game(5, 4, random_position_blocks(4, 5), 4, 6, 6, 5, recommend=True)
+    g4.play(algo_X=1, algo_O=1, e_func_X=2, e_func_O=1, player_x=3, player_o=3)
+    total_games.append(g4)
+
+    g5 = Game(8, 5, random_position_blocks(5, 8), 5, 2, 6, 1, recommend=True)
+    g5.play(algo_X=1, algo_O=1, e_func_X=2, e_func_O=1, player_x=3, player_o=3)
+    total_games.append(g5)
+
+    g6 = Game(8, 5, random_position_blocks(5, 8), 5, 2, 6, 5, recommend=True)
+    g6.play(algo_X=1, algo_O=1, e_func_X=2, e_func_O=1, player_x=3, player_o=3)
+    total_games.append(g6)
+
+    g7 = Game(8, 6, random_position_blocks(6, 8), 5, 6, 6, 1, recommend=True)
+    g7.play(algo_X=1, algo_O=1, e_func_X=2, e_func_O=1, player_x=3, player_o=3)
+    total_games.append(g7)
+
+    g8 = Game(8, 6, random_position_blocks(6, 8), 5, 6, 6, 5, recommend=True)
+    g8.play(algo_X=1, algo_O=1, e_func_X=2, e_func_O=1, player_x=3, player_o=3)
+    total_games.append(g8)
+
+    for game in total_games:
+        size_board, number_blocks, size_lineup, max_depth_X, max_depth_O, max_time, algo_X, algo_O, result, e_func_X, e_func_O, average_e_time, num_states_evaluation, final_evaluation_by_depth, average_evaluation_depth, average_recursion_depth = game
+
+        #total_games.append(result)
+        total_average_evaluation_time.append(average_e_time)
+        total_num_states_evaluation.append(num_states_evaluation)
+        total_average_evaluation_depth.append(average_evaluation_depth)
+
+    with open('scoreboard.txt', 'w') as f:
+        f.write(F'n={size_board} b={number_blocks} s={size_lineup} t={max_time}\n\n')
+        ad_x = (True if algo_X == 2 else False)
+        ad_y = (True if algo_O == 2 else False)
+        f.write(F'Player 1: d={max_depth_X} a={ad_x}\n')
+        f.write(F'Player 2: d={max_depth_O} a={ad_y}\n')
+        f.write('\n')
+        f.write(str(len(total_games)) + ' games' + '\n')
+        f.write('\n')
+        f.write(F'Total wins for heuristic e1: ' + '\n')
+        f.write(F'Total wins for heuristic e2: ' + '\n')
+        f.write('\n')
+        f.write('i\tAverage evaluation time: ' + str(sum(total_average_evaluation_time)/len(total_average_evaluation_time)) + '\n')
+        f.write('ii\tTotal heuristic evaluations: ' + str(sum(total_num_states_evaluation)/len(total_num_states_evaluation)) + '\n')
+        f.write('Evaluations by depth: ' + str(final_evaluation_by_depth) + '\n')
+        f.write('v\tAverage evaluation depth: ' + str(sum(total_average_evaluation_depth)/len(total_average_evaluation_depth)) + '\n')
+
 
 if __name__ == "__main__":
 	main()
+
+
+    
